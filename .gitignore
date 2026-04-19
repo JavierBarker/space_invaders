@@ -1,0 +1,9 @@
+# Ignorar ejecutables y archivos de compilación
+*.exe
+space_invaders
+
+# Archivos temporales
+*~
+
+# Directorios de build si se usan
+build/
