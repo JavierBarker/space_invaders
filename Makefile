@@ -9,8 +9,8 @@ ifeq ($(OS),Windows_NT)
     # Librerías Windows
     LDFLAGS = -lraylib -lopengl32 -lgdi32 -lwinmm
 
-    # Flags de compilación Windows
-    CXXFLAGS = -std=c++17 -Wall -I. -I./include
+    # Flags de compilación Windows (agregado -mwindows para ocultar terminal)
+    CXXFLAGS = -std=c++17 -Wall -I. -I./include -mwindows
 
 else
     # Configuración para macOS/Linux
@@ -38,5 +38,6 @@ $(TARGET): $(SOURCES)
 # Limpiar archivos compilados
 clean:
 	$(RM) $(TARGET)
+	$(RM) *.o
 
 .PHONY: all clean
