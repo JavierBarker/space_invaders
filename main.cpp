@@ -1,42 +1,16 @@
 #include "raylib.h"
-#include "SpaceInvaders.h"
+#include "./headers/SpaceInvaders.h"
 #include <string>
 #include <iostream>
 
-void ToggleFullscreenWindow(int windowWidth, int windowHeight)
-{
-    static bool isFullscreen = false;
-    
-    if (!isFullscreen)
-    {
-        int monitor = GetCurrentMonitor();
-        int monitorWidth = GetMonitorWidth(monitor);
-        int monitorHeight = GetMonitorHeight(monitor);
-        
-        SetWindowSize(monitorWidth, monitorHeight);
-        ToggleFullscreen();
-        isFullscreen = true;
-    }
-    else
-    {
-        ToggleFullscreen();
-        WaitTime(0.1);
-        SetWindowSize(windowWidth, windowHeight);
-        isFullscreen = false;
-    }
-}
-
 int main()
 {
-    const int ANCHO = 800;
-    const int ALTO = 600;
     
     bool programaEjecutandose = true;
     
     while (programaEjecutandose)
     {
-        // === LOGIN ===
-        InitWindow(ANCHO, ALTO, "SPACE INVADERS - LOGIN");
+        InitWindow(0, 0, "SPACE INVADERS");
         SetTargetFPS(60);
         SetWindowState(FLAG_WINDOW_RESIZABLE);
         MaximizeWindow();
@@ -61,11 +35,6 @@ int main()
                 break;
             }
             
-            if (IsKeyPressed(KEY_F11))
-            {
-                ToggleFullscreenWindow(ANCHO, ALTO);
-            }
-            
             if (mostrarError)
             {
                 tiempoError += deltaTime;
@@ -75,7 +44,8 @@ int main()
                     tiempoError = 0;
                 }
             }
-            
+
+            //Captura de Texto
             int key = GetCharPressed();
             while (key > 0)
             {
@@ -92,6 +62,7 @@ int main()
                 key = GetCharPressed();
             }
             
+            // funcionalidad para borrar texto con BACKSPACE
             if (IsKeyPressed(KEY_BACKSPACE))
             {
                 if (ingresandoUsuario && !usuario.empty())
@@ -100,6 +71,7 @@ int main()
                     contrasena.pop_back();
             }
             
+            //funcionalidad para alternar entre campos con TAB
             if (IsKeyPressed(KEY_TAB))
             {
                 ingresandoUsuario = !ingresandoUsuario;
@@ -107,28 +79,7 @@ int main()
             
             if (IsKeyPressed(KEY_ENTER))
             {
-                if (ingresandoUsuario && !usuario.empty())
-                {
-                    ingresandoUsuario = false;
-                }
-                else if (!ingresandoUsuario && !contrasena.empty())
-                {
-                    if (usuario == "admin" && contrasena == "1234")
-                    {
-                        loginExitoso = true;
-                    }
-                    else
-                    {
-                        mostrarError = true;
-                        usuario = "";
-                        contrasena = "";
-                        ingresandoUsuario = true;
-                    }
-                }
-                else
-                {
-                    mostrarError = true;
-                }
+                loginExitoso = true;
             }
             
             BeginDrawing();
@@ -180,9 +131,9 @@ int main()
         // Si el login fue exitoso y no se cerró el programa
         if (loginExitoso && programaEjecutandose)
         {
-            int monedas = 100;
+            int monedas = 2;
             bool enMenu = true;
-            bool tokensAgotados = false;
+            bool monedasAgotadas = false;
             bool salirAlLogin = false;
             
             while (enMenu && !WindowShouldClose() && !salirAlLogin)
@@ -204,11 +155,6 @@ int main()
                 {
                     float deltaTime = GetFrameTime();
                     
-                    if (IsKeyPressed(KEY_F11)) 
-                    {
-                        ToggleFullscreenWindow(ANCHO, ALTO);
-                    }
-                    
                     // En el menú principal, ESC ahora vuelve al LOGIN (NO cierra el programa)
                     if (IsKeyPressed(KEY_ESCAPE))
                     {
@@ -226,14 +172,14 @@ int main()
                         }
                     }
                     
-                    // Si los tokens se agotaron, solo permitir seleccionar SALIR
+                    // Si las monedas se agotaron, solo permitir seleccionar SALIR
                     if (monedas <= 0)
                     {
-                        tokensAgotados = true;
+                        monedasAgotadas = true;
                         opcionSeleccionada = 1;
                     }
                     
-                    if (!tokensAgotados)
+                    if (!monedasAgotadas)
                     {
                         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) 
                             opcionSeleccionada = (opcionSeleccionada - 1 + 2) % 2;
@@ -243,11 +189,11 @@ int main()
                     
                     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
                     {
-                        if (opcionSeleccionada == 0 && !tokensAgotados)
+                        if (opcionSeleccionada == 0 && !monedasAgotadas)
                         {
-                            if (monedas >= 15)
+                            if (monedas >= 1)
                             {
-                                monedas -= 15;
+                                monedas -= 1;
                                 enJuego = true;
                             }
                             else
@@ -281,7 +227,7 @@ int main()
                     DrawLine(currentWidth / 2 - 200, 150, currentWidth / 2 + 200, 150, COLOR_RETRO_AMARILLO);
                     
                     const char *opciones[2];
-                    if (tokensAgotados)
+                    if (monedasAgotadas)
                     {
                         opciones[0] = "JUGAR (BLOQUEADO)";
                         opciones[1] = "SALIR AL LOGIN";
@@ -295,7 +241,7 @@ int main()
                     for (int i = 0; i < 2; i++)
                     {
                         Color colorOpcion;
-                        if (tokensAgotados && i == 0)
+                        if (monedasAgotadas && i == 0)
                         {
                             colorOpcion = DARKGRAY;
                         }
@@ -304,10 +250,10 @@ int main()
                             colorOpcion = (i == opcionSeleccionada) ? COLOR_RETRO_AMARILLO : GRAY;
                         }
                         
-                        int sizeTexto = (i == opcionSeleccionada && !(tokensAgotados && i == 0)) ? 35 : 30;
+                        int sizeTexto = (i == opcionSeleccionada && !(monedasAgotadas && i == 0)) ? 35 : 30;
                         int anchoTexto = MeasureText(opciones[i], sizeTexto);
                         
-                        if (i == opcionSeleccionada && !(tokensAgotados && i == 0) && (int)(GetTime() * 5) % 2 == 0)
+                        if (i == opcionSeleccionada && !(monedasAgotadas && i == 0) && (int)(GetTime() * 5) % 2 == 0)
                         {
                             DrawText(opciones[i], currentWidth / 2 - anchoTexto / 2, 250 + i * 70, sizeTexto, COLOR_RETRO_ROJO);
                         }
@@ -318,41 +264,41 @@ int main()
                     }
                     
                     std::string textoMonedas;
-                    if (tokensAgotados)
+                    if (monedasAgotadas)
                     {
-                        textoMonedas = "TOKENS: 0/100 - GAME OVER";
+                        textoMonedas = "MONEDAS: 0 - GAME OVER";
                     }
                     else
                     {
-                        textoMonedas = "TOKENS: " + std::to_string(monedas) + "/100";
+                        textoMonedas = "MONEDAS: " + std::to_string(monedas);
                     }
                     
                     int fontSizeMonedas = 25;
                     int anchoMonedas = MeasureText(textoMonedas.c_str(), fontSizeMonedas);
                     DrawRectangle(currentWidth - anchoMonedas - 25, 25, anchoMonedas + 15, 35, DARKGRAY);
                     DrawRectangleLines(currentWidth - anchoMonedas - 25, 25, anchoMonedas + 15, 35, COLOR_RETRO_AMARILLO);
-                    DrawText(textoMonedas.c_str(), currentWidth - anchoMonedas - 20, 30, fontSizeMonedas, tokensAgotados ? RED : COLOR_RETRO_VERDE);
+                    DrawText(textoMonedas.c_str(), currentWidth - anchoMonedas - 20, 30, fontSizeMonedas, monedasAgotadas ? RED : COLOR_RETRO_VERDE);
                     
                     DrawCircle(currentWidth - anchoMonedas - 35, 42, 8, COLOR_RETRO_AMARILLO);
                     DrawCircle(currentWidth - anchoMonedas - 35, 42, 4, GOLD);
                     
-                    std::string textoCosto = "COSTO: 15 TOKENS";
+                    std::string textoCosto = "COSTO: 1 MONEDAS";
                     int fontSizeCosto = 18;
                     int anchoCosto = MeasureText(textoCosto.c_str(), fontSizeCosto);
                     DrawText(textoCosto.c_str(), currentWidth - anchoCosto - 25, 70, fontSizeCosto, GRAY);
                     
                     if (mostrarMensajeError)
                     {
-                        const char *errorMsg = "!TOKENS INSUFICIENTES! Necesitas 15 tokens";
+                        const char *errorMsg = "!MONEDAS INSUFICIENTES!";
                         int fontSizeError = 25;
                         int anchoError = MeasureText(errorMsg, fontSizeError);
                         DrawRectangle(currentWidth / 2 - anchoError / 2 - 10, currentHeight - 80, anchoError + 20, 40, RED);
                         DrawText(errorMsg, currentWidth / 2 - anchoError / 2, currentHeight - 70, fontSizeError, WHITE);
                     }
                     
-                    if (tokensAgotados)
+                    if (monedasAgotadas)
                     {
-                        const char *gameOverMsg = "!!! GAME OVER - TOKENS AGOTADOS !!!";
+                        const char *gameOverMsg = "!!! GAME OVER - MONEDAS AGOTADAS !!!";
                         int fontSizeGO = 30;
                         int anchoGO = MeasureText(gameOverMsg, fontSizeGO);
                         DrawRectangle(currentWidth / 2 - anchoGO / 2 - 10, currentHeight / 2 - 50, anchoGO + 20, 50, RED);
@@ -364,23 +310,23 @@ int main()
                         DrawText(thanksMsg, currentWidth / 2 - anchoThanks / 2, currentHeight / 2 + 20, fontSizeThanks, YELLOW);
                     }
                     
-                    if (monedas < 15 && monedas > 0 && !tokensAgotados)
+                    if (monedas < 1 && monedas > 0 && !monedasAgotadas)
                     {
-                        const char *warnMsg = "!POCOS TOKENS! Gana partidas para recargar (necesitas 15 para jugar)";
+                        const char *warnMsg = "!POCAS MONEDAS! Gana partidas para recargar (necesitas 1 moneda para jugar)";
                         int fontSizeWarn = 15;
                         int anchoWarn = MeasureText(warnMsg, fontSizeWarn);
                         DrawText(warnMsg, currentWidth / 2 - anchoWarn / 2, currentHeight - 100, fontSizeWarn, ORANGE);
                     }
                     
                     int fontSizeInst = 15;
-                    if (tokensAgotados)
+                    if (monedasAgotadas)
                     {
                         DrawText("PRESIONA [ENTER] para SALIR AL LOGIN",
                                  currentWidth / 2 - 250, currentHeight - 40, fontSizeInst, DARKGRAY);
                     }
                     else
                     {
-                        DrawText("USE [W/S] o [UP/DOWN]   [ENTER] para SELECCIONAR   [F11] FULLSCREEN   [ESC] LOGOUT",
+                        DrawText("USE [W/S] o [UP/DOWN]   [ENTER] para SELECCIONAR   [ESC] LOGOUT",
                                  currentWidth / 2 - 450, currentHeight - 40, fontSizeInst, DARKGRAY);
                     }
                     
@@ -389,12 +335,13 @@ int main()
                 
                 if (enJuego)
                 {
+                    //ENTRA AL JUEGO
                     GameSpaceInvaders(monedas);
                     
                     if (monedas <= 0)
                     {
-                        tokensAgotados = true;
-                        // Mostrar mensaje de tokens agotados
+                        monedasAgotadas = true;
+                        // Mostrar mensaje de monedas agotadas
                         float tiempoMensaje = 0;
                         while (!WindowShouldClose() && tiempoMensaje < 3.0f)
                         {
