@@ -50,8 +50,8 @@ void Player::Update(float time) {
 
     // ===== LIMITES PERSONALIZADOS =====
 
-    int margenIzquierdo = 450;
-    int margenDerecho = 450;
+    int margenIzquierdo = 350;
+    int margenDerecho = 350;
 
     // Limite izquierdo
     if (player.x < margenIzquierdo)
@@ -64,8 +64,8 @@ void Player::Update(float time) {
 
 void Player::Draw(float time) {
 
-int margenIzquierdo = 450;
-    int margenDerecho = 450;
+int margenIzquierdo = 350;
+    int margenDerecho = 350;
 
     DrawLine(
     margenIzquierdo,
