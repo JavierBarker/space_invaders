@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "./headers/SpaceInvaders.h"
 #include <string>
+#include "./headers/player.h"
 
 void GameSpaceInvaders(int& monedas) {
     SetWindowTitle("SPACE INVADERS - GAME");
@@ -15,10 +16,15 @@ void GameSpaceInvaders(int& monedas) {
     bool victoria = false;          // cambia a true para ir a victoria
     bool volverAlMenu = false;
 
+    Player player;
+
     // Loop principal
     while (!WindowShouldClose() && !volverAlMenu) {
         screenWidth = GetScreenWidth();
         screenHeight = GetScreenHeight();
+        float time = GetTime();
+
+    player.Update(time);
 
         // Dibujado
         BeginDrawing();
@@ -27,6 +33,7 @@ void GameSpaceInvaders(int& monedas) {
         // Pantalla de juego
         if (!mostrandoGameOver && !victoria) {
             //LOGICA DE JUEGO
+            player.Draw(time);
             DrawText(TextFormat("SCORE: %06d", puntuacion), 10, 10, 20, WHITE);
             DrawText(TextFormat("MONEDAS: %d", monedas), screenWidth - 160, 10, 20, YELLOW);
 
